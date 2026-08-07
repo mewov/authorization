@@ -7,3 +7,17 @@ services:
       - ${GRPC_PORT}:${GRPC_PORT}
     env_file:
       - ./.env
+
+  storage:
+    image: postgres:16-alpine
+    container_name: authorization_storage_pq
+    restart: always
+    environment:
+      POSTGRES_USER: rename
+      POSTGRES_PASSWORD: rename
+      POSTGRES_DB: rename
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
