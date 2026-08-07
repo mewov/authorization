@@ -19,6 +19,7 @@ func FromEnv() (*Config, error) {
 	address := get("ADDRESS", DEFAULT_ADDRESS)
 	restPort := get("REST_PORT", DEFAULT_REST_PORT)
 	grpcPort := get("GRPC_PORT", DEFAULT_GRPC_PORT)
+	pqurl := get("POSTGRES_URL", "")
 
 	writeTimeout, err := strconv.Atoi(get("WRITE_TIMEOUT", DEFAULT_WRITE_TIMEOUT))
 	if err != nil {
@@ -35,6 +36,7 @@ func FromEnv() (*Config, error) {
 		GrpcPort:     grpcPort,
 		WriteTimeout: time.Duration(writeTimeout) * time.Second,
 		ReadTimeout:  time.Duration(readTimeout) * time.Second,
+		PostgresUrl:  pqurl,
 	}, nil
 }
 

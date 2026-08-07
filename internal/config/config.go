@@ -9,6 +9,7 @@ type (
 		GrpcPort     string
 		WriteTimeout time.Duration
 		ReadTimeout  time.Duration
+		PostgresUrl  string
 	}
 )
 
@@ -30,4 +31,8 @@ func (c *Config) GetWriteTimeout() time.Duration {
 
 func (c *Config) GetReadTimeout() time.Duration {
 	return c.ReadTimeout
+}
+
+func (c *Config) GetPostgresUrl() string {
+	return c.PostgresUrl
 }
