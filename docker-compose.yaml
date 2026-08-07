@@ -1,0 +1,7 @@
+services:
+  authorization:
+    build: ./
+    container_name: authorization
+    ports:
+      - ${REST_PORT}:${REST_PORT}
+      - ${GRPC_PORT}:${GRPC_PORT}
