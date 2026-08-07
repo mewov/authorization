@@ -3,5 +3,5 @@ WORKDIR /app
 COPY go.mod ./
 RUN go mod download
 COPY . .
-RUN go build -o server
+RUN go build -o server ./cmd/auth
 CMD [ "./server" ]

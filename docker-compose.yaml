@@ -5,3 +5,5 @@ services:
     ports:
       - ${REST_PORT}:${REST_PORT}
       - ${GRPC_PORT}:${GRPC_PORT}
+    env_file:
+      - ./.env
