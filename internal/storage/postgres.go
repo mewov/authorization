@@ -1,45 +1,70 @@
 package storage
 
 import (
-	"database/sql"
+	"context"
 	"log/slog"
 	"time"
 
-	_ "github.com/jackc/pgx/v5"
-	"github.com/mewov/authorization/internal/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type (
-	Postgres struct {
-		db *sql.DB
-	}
+const (
+	pingTimeout = 5 * time.Second
+	maxRetries  = 10
+	retryDelay  = 2 * time.Second
 )
 
-func ConnectToPostgres(conf *config.Config) (*Postgres, error) {
-	db, err := sql.Open("postgresql", conf.PostgresUrl)
+type Postgres struct {
+	db *pgxpool.Pool
+}
+
+func ConnectToPostgres(url string) (*Postgres, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), pingTimeout)
+	defer cancel()
+
+	pool, err := pgxpool.New(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	for range 10 {
-		err = db.Ping()
+	for i := 0; i < maxRetries; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), pingTimeout)
+
+		err = pool.Ping(ctx)
+		cancel()
+
 		if err == nil {
-			break
+			slog.Info("connected to PostgreSQL")
+			return &Postgres{db: pool}, nil
 		}
-		slog.Info("ping database...")
-		time.Sleep(time.Second * 2)
-	}
-	if err != nil {
-		return nil, err
+
+		slog.Warn(
+			"failed to connect to postgres",
+			"attempt", i+1,
+			"max_attempts", maxRetries,
+			"error", err,
+		)
+
+		time.Sleep(retryDelay)
 	}
 
-	return &Postgres{db: db}, nil
+	pool.Close()
+	return nil, err
 }
 
 func (p *Postgres) Ping() error {
-	return p.db.Ping()
+	ctx, cancel := context.WithTimeout(context.Background(), pingTimeout)
+	defer cancel()
+
+	return p.db.Ping(ctx)
 }
 
-func (p *Postgres) Close() error {
-	return p.db.Close()
+func (p *Postgres) Close() {
+	if p.db != nil {
+		p.db.Close()
+	}
+}
+
+func (p *Postgres) Pool() *pgxpool.Pool {
+	return p.db
 }
