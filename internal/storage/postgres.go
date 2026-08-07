@@ -34,7 +34,7 @@ func ConnectToPostgres(url string) (*Postgres, error) {
 		cancel()
 
 		if err == nil {
-			slog.Info("connected to PostgreSQL")
+			slog.Info("connected to postgres")
 			return &Postgres{db: pool}, nil
 		}
 

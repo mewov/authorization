@@ -20,6 +20,4 @@ func main() {
 		return
 	}
 	defer pq.Close()
-
-	slog.Info("connect to postgres")
 }
