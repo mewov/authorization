@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
 	"github.com/mewov/authorization/internal/config"
 	"github.com/mewov/authorization/internal/storage"
@@ -20,4 +22,13 @@ func main() {
 		return
 	}
 	defer pq.Close()
+
+	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
+	if err := pq.Migration(ctx); err != nil {
+		slog.Error("migration database", "error", err)
+		return
+	}
+
+	slog.Info("success migration")
+	done()
 }
