@@ -19,7 +19,10 @@ func FromEnv() (*Config, error) {
 	address := get("ADDRESS", DEFAULT_ADDRESS)
 	restPort := get("REST_PORT", DEFAULT_REST_PORT)
 	grpcPort := get("GRPC_PORT", DEFAULT_GRPC_PORT)
-	pqurl := get("POSTGRES_URL", "")
+	pqurl := os.Getenv("POSTGRES_URL")
+	if pqurl == "" {
+		return nil, fmt.Errorf("$POSTGRES_URL is empty")
+	}
 
 	writeTimeout, err := strconv.Atoi(get("WRITE_TIMEOUT", DEFAULT_WRITE_TIMEOUT))
 	if err != nil {
